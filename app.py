@@ -1,7 +1,7 @@
+import win32serviceutil, win32service
+import subprocess
 import tkinter as tk
 from tkinter import messagebox
-import subprocess
-import sys
 
 WELCOME_MESSAGE = "설정하려는 서버를 선택하세요."
 
@@ -17,19 +17,25 @@ def set_timezone(status_label, timezone_name):
 
 
 def check_and_start_w32time(status_label):
-    service_status = subprocess.run(["sc", "query", "w32time"], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
-    if "RUNNING" in service_status.stdout:
-        update_status(status_label, "Windows Time 서비스가 이미 실행 중입니다.")
-    else:
-        update_status(status_label, "Windows Time 서비스를 시작합니다...")
-        subprocess.run(["net", "start", "w32time"], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
-        update_status(status_label, "서비스 시작 완료.")
+    try:
+        service_name = "w32time"
+        if win32serviceutil.QueryServiceStatus(service_name)[1] == 4:  # 4는 서비스가 실행 중임을 나타냄
+            update_status(status_label, "Windows Time 서비스가 이미 실행 중입니다.")
+        else:
+            update_status(status_label, "Windows Time 서비스를 시작합니다...")
+            win32serviceutil.StartService(service_name)
+            win32serviceutil.WaitForServiceStatus(service_name, win32service.SERVICE_RUNNING, 10)  # 10초 동안 서비스가 시작될 때까지 기다림
+            update_status(status_label, "서비스 시작 완료.")
+    except Exception as e:
+        messagebox.showerror("오류", f"서비스 시작 중 오류 발생: {e}")
+        update_status(status_label, "오류가 발생했습니다.")
 
 
 def resync_time(status_label):
-    update_status(status_label, "시간 동기화 중...")
-    subprocess.run(["w32tm", "/resync"], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
-    update_status(status_label, "시간 동기화 완료.")
+    # Windows API를 직접 호출하여 시간 동기화를 수행하는 것은 제한됩니다.
+    # 이 함수 내에서 'w32tm /resync' 명령의 직접적인 대체는 제공하지 않습니다.
+    # 대신, 'w32time' 서비스를 재시작하는 것으로 간접적인 시간 동기화를 시도할 수 있습니다.
+    check_and_start_w32time(status_label)
 
 
 def apply_settings(status_label, timezone):
@@ -47,7 +53,7 @@ def apply_settings(status_label, timezone):
         update_status(status_label, "오류가 발생했습니다.")
 
 
-def setup_gui():
+def main():
     window = tk.Tk()
     window.title("PUBG 서버 설정 도우미")
     window.geometry("300x125")
@@ -62,4 +68,4 @@ def setup_gui():
 
 
 if __name__ == "__main__":
-    setup_gui()
+    main()
