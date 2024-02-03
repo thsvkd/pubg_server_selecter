@@ -1,1 +1,1 @@
-python -m PyInstaller --onefile --windowed --uac-admin --name pubg_server_selector app.py
+python -m PyInstaller --onefile --windowed --uac-admin --add-data "./res/github.png;./res" --name pubg_server_selecter src/app.py
