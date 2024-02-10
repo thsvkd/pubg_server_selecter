@@ -4,7 +4,7 @@
 
 ## 사용법
 
-1. [링크](https://github.com/thsvkd)에서 프로그램을 다운로드 받아 실행.
+1. [링크](https://github.com/thsvkd/pubg_server_selecter/releases/tag/v0.1.1)에서 프로그램을 다운로드 받아 실행.
 2. 설정하려는 서버의 시간을 선택하여 컴퓨터 시간 변경.
 3. 로비 재시작을 통해 서버 변경.
 4. 배그 서버 설정 완료!
